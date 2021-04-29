@@ -1,0 +1,23 @@
+﻿@model Surveyer.Models.ManageModel
+@{
+    ViewBag.Title = "ManageSurveys";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{
+    <h1>Açık Testler</h1>
+    foreach (var item in Model.OpenTests)
+    {
+        <h2>@item.Title</h2>
+        @Html.ActionLink("Düzenle", "Edit", "Admin", new { id = item.id }, new { @class = "btn btn-primary" })
+        @Html.ActionLink("Kapat", "CloseOpen", "Admin", new { id = item.id }, new { @class = "btn btn-primary" })
+    }
+    <h1>Kapalı Testler</h1>
+    foreach (var item in Model.ClosedTests)
+    {
+        <h2>@item.Title</h2>
+        @Html.ActionLink("Düzenle", "Edit", "Admin", new { id = item.id }, new { @class = "btn btn-primary" })
+        @Html.ActionLink("Aç", "CloseOpen", "Admin", new { id = item.id }, new { @class = "btn btn-primary" })
+    }
+}
+
+

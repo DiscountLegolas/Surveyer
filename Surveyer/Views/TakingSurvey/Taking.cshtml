@@ -1,0 +1,29 @@
+﻿@model Surveyer.Models.ModelTest
+@{
+    ViewBag.Title = "Taking";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using (Html.BeginForm())
+{
+    if (TempData.ContainsKey("Error"))
+    {
+        string error = (string)TempData["Error"];
+        <h1>@error</h1>
+    }
+    for (int i = 0; i < Model.Questions.Count; i++)
+    {
+        @Html.HiddenFor(x => x.Questions[i].Question.Id)
+        <h2>@Html.DisplayFor(X => X.Questions[i].Question.Soru)</h2>
+        <ul>
+            @for (int j = 0; j < Model.Questions[i].Question.Choices.Count; j++)
+            {
+                <li>
+                    @Html.RadioButtonFor(x => x.Questions[i].Seçim, Model.Questions[i].Question.Choices.ElementAt(j).Yazı)
+                    @Html.DisplayFor(X => X.Questions[i].Question.Choices.ElementAt(j).Yazı)
+                </li>
+            }
+        </ul>
+    }
+    <button type="submit">Testi Bitir</button>
+    @Html.ActionLink("Cancel", "Index", "Taking", new { @class = "btn btn-primary" })
+}

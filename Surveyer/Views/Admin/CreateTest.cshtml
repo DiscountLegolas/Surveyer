@@ -1,0 +1,40 @@
+﻿@model Surveyer.Models.CreateEditTestModel
+@{
+    ViewBag.Title = "CreateTest";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using (Html.BeginForm())
+{
+    <h1>Title</h1>
+    @Html.TextBoxFor(X=>X.Title)
+    for (int i = 0; i < Model.EditQuestionModels.Count; i++)
+    {
+        <h3>
+            Soru
+        </h3>
+        @Html.HiddenFor(x=>x.EditQuestionModels[i].Questionİd)
+        @Html.TextAreaFor(x=>x.EditQuestionModels[i].Soru)
+        <h3>Şıklar</h3>
+        <ul>
+            @for (int j = 0; j < Model.EditQuestionModels[i].Choices.Count; j++)
+            {
+                @Html.HiddenFor(x=>x.EditQuestionModels[i].Choices[j].Id)
+                <li>@Html.TextBoxFor(x=>x.EditQuestionModels[i].Choices[j].Yazı)</li>
+            }
+        </ul>
+    }
+    for (int i = 0; i < Model.CreatingQuestionmodels.Count; i++)
+    {
+        <h3>Soru</h3>
+        @Html.TextAreaFor(x => x.CreatingQuestionmodels[i].Soru)
+        <h3>Şıklar</h3>
+        <ul>
+            @for (int j = 0; j < Model.CreatingQuestionmodels[i].Choices.Count; j++)
+            {
+                <li>@Html.TextBoxFor(x=>x.CreatingQuestionmodels[i].Choices[j])</li>
+            }
+        </ul>
+    }
+    <button type="submit">Testi Kaydet</button>
+    @Html.ActionLink("Cancel", "ManageSurveys", "Admin",new {@class= "btn btn-primary" })
+}

@@ -1,0 +1,16 @@
+﻿@model Surveyer.Models.LoginAndRegisterModel
+@{
+    ViewBag.Title = "Login";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using (Html.BeginForm())
+{
+    <h1>Nick</h1>
+    @Html.TextBoxFor(x=>x.Nick)
+    <h2>Pass</h2>
+    @Html.TextBoxFor(x=>x.Pass)
+    <br />
+    <br />
+    <button type="submit">Giriş Yap</button>
+}
+
