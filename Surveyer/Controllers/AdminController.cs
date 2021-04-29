@@ -38,30 +38,7 @@ namespace Surveyer.Controllers
             }
             else
             {
-                Test test = new Test();
-                test.Title = testModel.Title;
-                test.Open = false;
-                Random random = new Random();
-                test.Id = random.Next();
-                SurveyEntities surveyEntities = new SurveyEntities();
-                foreach (var item in testModel.CreatingQuestionmodels.Where(x => x.Soru != null && x.Choices.Count > 1))
-                {
-                    Question question = new Question();
-                    question.Soru = item.Soru;
-                    question.Test = test.Id;
-                    question.Id = random.Next();
-                    foreach (var item2 in item.Choices.Where(x => x.Length > 0))
-                    {
-                        Choice choice = new Choice();
-                        choice.Yazı = item2;
-                        choice.Id = random.Next();
-                        choice.Question = question.Id;
-                        surveyEntities.Choices.Add(choice);
-                    }
-                    surveyEntities.Questions.Add(question);
-                }
-                surveyEntities.Tests.Add(test);
-                surveyEntities.SaveChanges();
+                testModel.CreateTest();
                 return RedirectToAction("Index", "Home");
             }
         }
@@ -100,56 +77,7 @@ namespace Surveyer.Controllers
         public ActionResult Edit(CreateEditTestModel testmodel)
         {
             int id = (int)Session["id"];
-            SurveyEntities surveyEntities = new SurveyEntities();
-            Random random = new Random();
-            if (testmodel.Title.Length>5)
-            {
-                surveyEntities.Tests.Single(x => x.Id == id).Title = testmodel.Title;
-            }
-            foreach (var item in testmodel.EditQuestionModels)
-            {
-                if (String.IsNullOrEmpty(item.Soru)||item.Choices.Count(x => !String.IsNullOrEmpty(x.Yazı)) < 2)
-                {
-                    surveyEntities.Choices.RemoveRange(surveyEntities.Choices.Where(x => x.Question == item.Questionİd));
-                    surveyEntities.Answers.RemoveRange(surveyEntities.Answers.Where(x => x.Question == item.Questionİd));
-                    surveyEntities.Questions.Remove(surveyEntities.Questions.First(X => X.Id == item.Questionİd));
-                }
-                else
-                {
-                    foreach (var item2 in item.Choices)
-                    {
-                        if (String.IsNullOrEmpty(item2.Yazı))
-                        {
-                            surveyEntities.Choices.Remove(surveyEntities.Choices.Single(x => x.Id == item2.Id));
-                        }
-                        else
-                        {
-                            surveyEntities.Choices.Single(x => x.Id == item2.Id).Yazı = item2.Yazı;
-                        }
-                    }
-                    if (item.Soru.Length>5)
-                    {
-                        surveyEntities.Questions.Single(x => x.Id == item.Questionİd).Soru = item.Soru;
-                    }
-                }
-            }
-            foreach (var item in testmodel.CreatingQuestionmodels.Where(x => x.Soru != null && x.Choices.Count > 1))
-            {
-                Question question = new Question();
-                question.Soru = item.Soru;
-                question.Test = id;
-                question.Id = random.Next();
-                foreach (var item2 in item.Choices.Where(x => x.Length > 0))
-                {
-                    Choice choice = new Choice();
-                    choice.Yazı = item2;
-                    choice.Id = random.Next();
-                    choice.Question = question.Id;
-                    surveyEntities.Choices.Add(choice);
-                }
-                surveyEntities.Questions.Add(question);
-            }
-            surveyEntities.SaveChanges();
+            testmodel.EditTest(id);
             return RedirectToAction("Index", "Home");
         }
         public ActionResult ManageSurveys()
