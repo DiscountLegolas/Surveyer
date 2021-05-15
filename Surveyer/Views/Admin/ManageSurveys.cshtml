@@ -5,19 +5,41 @@
 }
 @{
     <h1>Açık Testler</h1>
-    foreach (var item in Model.OpenTests)
+    if (Model.AllTests.Count(x => x.Open == true) == 0)
     {
-        <h2>@item.Title</h2>
-        @Html.ActionLink("Düzenle", "Edit", "Admin", new { id = item.id }, new { @class = "btn btn-primary" })
-        @Html.ActionLink("Kapat", "CloseOpen", "Admin", new { id = item.id }, new { @class = "btn btn-primary" })
+        <h1>Görüntülenecek Test Yok</h1>
     }
-    <h1>Kapalı Testler</h1>
-    foreach (var item in Model.ClosedTests)
+    else
     {
-        <h2>@item.Title</h2>
-        @Html.ActionLink("Düzenle", "Edit", "Admin", new { id = item.id }, new { @class = "btn btn-primary" })
-        @Html.ActionLink("Aç", "CloseOpen", "Admin", new { id = item.id }, new { @class = "btn btn-primary" })
+        foreach (var item in Model.AllTests.Where(x => x.Open == true))
+        {
+            <h2>@item.Title</h2>
+            @Html.ActionLink("Kapat", "CloseOpen", "Admin", new { id = item.id }, new { @class = "btn btn-primary" })
+        }
     }
+    <h1>Tüm Testler</h1>
+    if (Model.AllTests.Count == 0)
+    {
+        <h1>Görüntülenecek Test Yok</h1>
+    }
+    else
+    {
+        foreach (var item in Model.AllTests)
+        {
+            <h2>@item.Title</h2>
+            if (item.Open == false)
+            {
+                @Html.ActionLink("Aç", "CloseOpen", "Admin", new { id = item.id }, new { @class = "btn btn-primary" })
+            }
+            <br />
+            @Html.ActionLink("Düzenle", "Edit", "Admin", new { id = item.id }, new { @class = "btn btn-primary" })
+            <br />
+            @Html.ActionLink("Sil", "Delete", "Admin", new { id = item.id }, new { @class = "btn btn-danger" })
+        }
+    }
+    <br />
+    <br />
+    @Html.ActionLink("Yeni Test Oluştur", "CreateTest", "Admin", null, new { @class = "btn btn-primary" });
 }
 
 

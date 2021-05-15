@@ -18,7 +18,7 @@
         <ul>
             @for (int j = 0; j < Model.EditQuestionModels[i].Choices.Count; j++)
             {
-                @Html.HiddenFor(x=>x.EditQuestionModels[i].Choices[j].Id)
+                @Html.HiddenFor(x=>x.EditQuestionModels[i].Choices[j].ChoiceId)
                 <li>@Html.TextBoxFor(x=>x.EditQuestionModels[i].Choices[j].Yazı)</li>
             }
         </ul>

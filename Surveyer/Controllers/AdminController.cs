@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
+using Surveyer.EntityFrameworkCodeFirst.DbContext;
+using Surveyer.EntityFrameworkCodeFirst.Models;
 using Surveyer.Models;
 
 namespace Surveyer.Controllers
@@ -39,7 +41,7 @@ namespace Surveyer.Controllers
             else
             {
                 testModel.CreateTest();
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("ManageSurveys", "Admin");
             }
         }
         public ActionResult Edit(int id)
@@ -48,9 +50,9 @@ namespace Surveyer.Controllers
             CreateEditTestModel createEditTestModel = new CreateEditTestModel();
             createEditTestModel.CreatingQuestionmodels = new List<CreatingTestQuestionmodel>();
             createEditTestModel.EditQuestionModels = new List<EditQuestionModel>();
-            SurveyEntities surveyEntities = new SurveyEntities();
-            createEditTestModel.Title = surveyEntities.Tests.Single(x => x.Id == id).Title;
-            foreach (var item in surveyEntities.Questions.Where(x => x.Test == id).Include(x => x.Choices))
+            SurveyDbContext surveyEntities = new SurveyDbContext();
+            createEditTestModel.Title = surveyEntities.Tests.Single(x => x.TestId == id).Title;
+            foreach (var item in surveyEntities.Questions.Where(x => x.TestId == id).Include(x => x.Choices))
             {
                 List<Choice> vs = new List<Choice>();
                 foreach (var item1 in item.Choices)
@@ -58,7 +60,7 @@ namespace Surveyer.Controllers
                     Choice choice = item1;
                     vs.Add(choice);
                 }
-                EditQuestionModel editQuestionModel = new EditQuestionModel { Questionİd = item.Id, Choices = vs, Soru = item.Soru };
+                EditQuestionModel editQuestionModel = new EditQuestionModel { Questionİd = item.QuestionId, Choices = vs, Soru = item.Soru };
                 createEditTestModel.EditQuestionModels.Add(editQuestionModel);
             }
             for (int i = 0; i < (10 - createEditTestModel.EditQuestionModels.Count); i++)
@@ -78,37 +80,48 @@ namespace Surveyer.Controllers
         {
             int id = (int)Session["id"];
             testmodel.EditTest(id);
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("ManageSurveys", "Admin");
         }
         public ActionResult ManageSurveys()
         {
             ManageModel manageModel = new ManageModel();
-            manageModel.OpenTests = new List<ManageTestModel>();
-            manageModel.ClosedTests = new List<ManageTestModel>();
-            SurveyEntities surveyEntities = new SurveyEntities();
-            foreach (var item in surveyEntities.Tests.Where(x => x.Open == false))
+            manageModel.AllTests = new List<ManageTestModel>();
+            SurveyDbContext surveyEntities = new SurveyDbContext();
+            foreach (var item in surveyEntities.Tests)
             {
-                manageModel.ClosedTests.Add(new ManageTestModel() { id = item.Id, Title = item.Title });
-            }
-            foreach (var item in surveyEntities.Tests.Where(x=>x.Open==true))
-            {
-                manageModel.OpenTests.Add(new ManageTestModel() { id = item.Id, Title = item.Title });
+                manageModel.AllTests.Add(new ManageTestModel() { id = item.TestId, Title = item.Title, Open = item.Open });
             }
             return View(manageModel);
         }
         public ActionResult CloseOpen(int id)
         {
-            SurveyEntities surveyEntities = new SurveyEntities();
-            if (surveyEntities.Tests.Single(x => x.Id == id).Open==true)
+            SurveyDbContext surveyEntities = new SurveyDbContext();
+            if (surveyEntities.Tests.Single(x => x.TestId == id).Open==true)
             {
-                surveyEntities.Tests.Single(x => x.Id == id).Open = false;
+                surveyEntities.Tests.Single(x => x.TestId == id).Open = false;
             }
             else
             {
-                surveyEntities.Tests.Single(x => x.Id == id).Open = true;
+                surveyEntities.Tests.Single(x => x.TestId == id).Open = true;
             }
             surveyEntities.SaveChanges();
             return RedirectToAction("ManageSurveys", "Admin");
+        }
+        public ActionResult Delete(int id)
+        {
+            using (SurveyDbContext entities=new SurveyDbContext())
+            {
+                Test test = entities.Tests.Single(X => X.TestId == id);
+                foreach (var item in entities.Questions.Include(x=>x.Choices).Include(x=>x.Answers).Where(x=>x.TestId==id))
+                {
+                    entities.Choices.RemoveRange(item.Choices);
+                    entities.Answers.RemoveRange(item.Answers);
+                    entities.Questions.Remove(item);
+                }
+                entities.Tests.Remove(test);
+                entities.SaveChanges();
+                return RedirectToAction("ManageSurveys", "Admin");
+            }
         }
     }
 }

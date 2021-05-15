@@ -6,6 +6,8 @@ using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
 using Surveyer.Models;
+using Surveyer.EntityFrameworkCodeFirst.DbContext;
+using Surveyer.EntityFrameworkCodeFirst.Models;
 
 namespace Surveyer.Controllers
 {
@@ -22,10 +24,10 @@ namespace Surveyer.Controllers
         [HttpPost]
         public ActionResult Login(LoginAndRegisterModel login)
         {
-            SurveyEntities survey = new SurveyEntities();
-            if (survey.SurveyTakers.Any(x=>x.Login==login.Nick&&x.Pass==login.Pass))
+            SurveyDbContext survey = new SurveyDbContext();
+            if (survey.Users.Any(x=>x.Nick==login.Nick&&x.Password==login.Pass))
             {
-                Session["CurrentUser"] = survey.SurveyTakers.Single(x => x.Login == login.Nick && x.Pass == login.Pass).Id;
+                Session["CurrentUser"] = survey.Users.Single(x => x.Nick == login.Nick && x.Password == login.Pass).UserId;
                 return RedirectToAction("Index", "TakingSurvey");
             }
             else
@@ -42,20 +44,20 @@ namespace Surveyer.Controllers
         {
             if (ModelState.IsValid&&register.Nick.Length>=8)
             {
-                using (SurveyEntities entities=new SurveyEntities())
+                using (SurveyDbContext entities =new SurveyDbContext())
                 {
-                    if (entities.SurveyTakers.Any(X=>X.Login==register.Nick))
+                    if (entities.Users.Any(X=>X.Nick==register.Nick))
                     {
                         return View();
                     }
                     else
                     {
-                        SurveyTaker surveyTaker = new SurveyTaker();
+                        User surveyTaker = new User();
                         Random random = new Random();
-                        surveyTaker.Id = random.Next();
-                        surveyTaker.Login = register.Nick;
-                        surveyTaker.Pass = register.Pass;
-                        entities.SurveyTakers.Add(surveyTaker);
+                        surveyTaker.UserId = random.Next();
+                        surveyTaker.Nick = register.Nick;
+                        surveyTaker.Password = register.Pass;
+                        entities.Users.Add(surveyTaker);
                         entities.SaveChanges();
                         entities.Dispose();
                         return RedirectToAction("Login", "Home");

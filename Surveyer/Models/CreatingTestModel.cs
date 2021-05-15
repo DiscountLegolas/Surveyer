@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Surveyer.EntityFrameworkCodeFirst.DbContext;
+using Surveyer.EntityFrameworkCodeFirst.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -7,13 +9,13 @@ namespace Surveyer.Models
 {
     public class EditQuestionModel
     {
-        public void UpdateDatabase(SurveyEntities surveyEntities)
+        public void UpdateDatabase(SurveyDbContext surveyEntities)
         {
             if (String.IsNullOrEmpty(Soru) || Choices.Count(x => !String.IsNullOrEmpty(x.Yazı)) < 2)
             {
-                surveyEntities.Choices.RemoveRange(surveyEntities.Choices.Where(x => x.Question == Questionİd));
-                surveyEntities.Answers.RemoveRange(surveyEntities.Answers.Where(x => x.Question == Questionİd));
-                surveyEntities.Questions.Remove(surveyEntities.Questions.First(X => X.Id == Questionİd));
+                surveyEntities.Choices.RemoveRange(surveyEntities.Choices.Where(x => x.QuestionId == Questionİd));
+                surveyEntities.Answers.RemoveRange(surveyEntities.Answers.Where(x => x.QuestionId == Questionİd));
+                surveyEntities.Questions.Remove(surveyEntities.Questions.First(X => X.QuestionId == Questionİd));
             }
             else
             {
@@ -21,16 +23,16 @@ namespace Surveyer.Models
                 {
                     if (String.IsNullOrEmpty(item2.Yazı))
                     {
-                        surveyEntities.Choices.Remove(surveyEntities.Choices.Single(x => x.Id == item2.Id));
+                        surveyEntities.Choices.Remove(surveyEntities.Choices.Single(x => x.ChoiceId == item2.ChoiceId));
                     }
                     else
                     {
-                        surveyEntities.Choices.Single(x => x.Id == item2.Id).Yazı = item2.Yazı;
+                        surveyEntities.Choices.Single(x => x.ChoiceId == item2.ChoiceId).Yazı = item2.Yazı;
                     }
                 }
                 if (Soru.Length > 5)
                 {
-                    surveyEntities.Questions.Single(x => x.Id == Questionİd).Soru = Soru;
+                    surveyEntities.Questions.Single(x => x.QuestionId == Questionİd).Soru = Soru;
                 }
             }
         }
@@ -40,23 +42,23 @@ namespace Surveyer.Models
     }
     public class CreatingTestQuestionmodel
     {
-        public void Addtodatabase(SurveyEntities surveyEntities,int testid)
+        public void Addtodatabase(SurveyDbContext surveyEntities,int testid)
         {
             var a=new Random();
             Question question = new Question();
             question.Soru = Soru;
-            question.Test = testid;
-            question.Id = a.Next();
-            foreach (var item2 in Choices.Where(x => x.Length > 0))
+            question.TestId = testid;
+            question.QuestionId = a.Next();
+            foreach (var item2 in Choices.Where(x=>!String.IsNullOrEmpty(x)))
             {
                 Choice choice = new Choice();
                 choice.Yazı = item2;
-                choice.Id = a.Next();
-                while (surveyEntities.Choices.Any(x=>x.Id==choice.Id))
+                choice.ChoiceId = a.Next();
+                while (surveyEntities.Choices.Any(x=>x.ChoiceId==choice.ChoiceId))
                 {
-                    choice.Id = a.Next();
+                    choice.ChoiceId = a.Next();
                 }
-                choice.Question = question.Id;
+                choice.QuestionId = question.QuestionId;
                 surveyEntities.Choices.Add(choice);
             }
             surveyEntities.Questions.Add(question);
@@ -68,11 +70,11 @@ namespace Surveyer.Models
     {
         public void EditTest(int testid)
         {
-            SurveyEntities surveyEntities = new SurveyEntities();
+            SurveyDbContext surveyEntities = new SurveyDbContext();
             Random random = new Random();
             if (Title.Length > 5)
             {
-                surveyEntities.Tests.Single(x => x.Id == testid).Title = Title;
+                surveyEntities.Tests.Single(x => x.TestId == testid).Title = Title;
             }
             foreach (var item in EditQuestionModels)
             {
@@ -90,11 +92,11 @@ namespace Surveyer.Models
             test.Title = Title;
             test.Open = false;
             Random random = new Random();
-            test.Id = random.Next();
-            SurveyEntities surveyEntities = new SurveyEntities();
+            test.TestId = random.Next();
+            SurveyDbContext surveyEntities = new SurveyDbContext();
             foreach (var item in CreatingQuestionmodels.Where(x => x.Soru != null && x.Choices.Count > 1))
             {
-                item.Addtodatabase(surveyEntities, test.Id);
+                item.Addtodatabase(surveyEntities, test.TestId);
             }
             surveyEntities.Tests.Add(test);
             surveyEntities.SaveChanges();

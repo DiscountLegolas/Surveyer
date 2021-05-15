@@ -7,12 +7,12 @@ namespace Surveyer.Models
 {
     public class ManageTestModel
     {
+        public bool Open { get; set; }
         public string Title { get; set; }
         public int id { get; set; }
     }
     public class ManageModel
     {
-        public List<ManageTestModel> ClosedTests { get; set; }
-        public List<ManageTestModel> OpenTests { get; set; }
+        public List<ManageTestModel> AllTests { get; set; }
     }
 }
